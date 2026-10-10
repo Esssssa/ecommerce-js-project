@@ -1,0 +1,97 @@
+checkCustomer();
+showCustomerMenu();
+show();
+
+function show() {
+    const cart = getData(cartKey());
+    const products = getData("products");
+    let html = "";
+    let total = 0;
+
+    cart.forEach(item => {
+        const p = products.find(p => p.id == item.id);
+        // product may have been deleted by the admin
+        if (!p) return;
+        total += p.price * item.qty;
+        html += "<tr><td>" + p.name + "</td><td>" + p.price + "</td><td>" +
+            "<button onclick='changeQty(" + p.id + ", -1)'>-</button> " + item.qty +
+            " <button onclick='changeQty(" + p.id + ", 1)'>+</button></td><td>" +
+            p.price * item.qty + "</td><td>" +
+            "<button onclick='removeItem(" + p.id + ")'>Remove</button></td></tr>";
+    });
+    if (html == "") {
+        html = "<tr><td colspan='5'>Your cart is empty</td></tr>";
+    }
+    document.getElementById("list").innerHTML = html;
+    document.getElementById("total").innerText = total;
+}
+
+function changeQty(id, change) {
+    const cart = getData(cartKey());
+    const item = cart.find(i => i.id == id);
+    const product = getData("products").find(p => p.id == id);
+    const error = document.getElementById("error");
+    error.innerText = "";
+
+    if (item.qty + change > product.stock) {
+        error.innerText = "Only " + product.stock + " of " + product.name + " in stock";
+        return;
+    }
+    if (item.qty + change < 1) {
+        return;
+    }
+    item.qty += change;
+    saveData(cartKey(), cart);
+    show();
+}
+
+function removeItem(id) {
+    saveData(cartKey(), getData(cartKey()).filter(i => i.id != id));
+    show();
+}
+
+function placeOrder() {
+    const error = document.getElementById("error");
+    const products = getData("products");
+    const items = [];
+    let total = 0;
+    error.innerText = "";
+    document.getElementById("message").innerText = "";
+
+    for (const item of getData(cartKey())) {
+        const p = products.find(p => p.id == item.id);
+        if (!p) continue;
+        if (item.qty > p.stock) {
+            error.innerText = "Not enough stock for " + p.name + " (only " + p.stock + " left)";
+            return;
+        }
+        items.push({ id: p.id, name: p.name, price: p.price, qty: item.qty });
+        total += p.price * item.qty;
+    }
+    if (items.length == 0) {
+        error.innerText = "Your cart is empty";
+        return;
+    }
+
+    // take the stock now, admin gives it back if the order is rejected
+    items.forEach(i => {
+        products.find(p => p.id == i.id).stock -= i.qty;
+    });
+    saveData("products", products);
+
+    const customer = getData("customers").find(c => c.id == getCustomerId());
+    const orders = getData("orders");
+    orders.push({
+        id: nextId(orders),
+        customerId: customer.id,
+        customer: customer.name,
+        items: items,
+        total: total,
+        status: "pending",
+        date: new Date().toLocaleDateString()
+    });
+    saveData("orders", orders);
+    saveData(cartKey(), []);
+    show();
+    document.getElementById("message").innerText = "Order placed! It is pending until the admin confirms it.";
+}
