@@ -41,8 +41,8 @@ function save() {
         error.innerText = "Name must be at least 3 characters";
         return;
     }
-    if (image.indexOf("http") != 0) {
-        error.innerText = "Image must be a link starting with http";
+    if (image.indexOf("http") != 0 && image.indexOf("../images/") != 0) {
+        error.innerText = "Image must be a link starting with http or a file like ../images/phone.svg";
         return;
     }
     if (Number(price) <= 0) {

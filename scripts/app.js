@@ -16,6 +16,15 @@ function setup() {
     if (getData("categories").length == 0) {
         saveData("categories", [{ id: 1, name: "Phones" }, { id: 2, name: "Laptops" }]);
     }
+    // some starting products so the shop is not empty (only the first time)
+    if (localStorage.getItem("products") == null) {
+        saveData("products", [
+            { id: 1, name: "Smart Phone", image: "../images/phone.svg", category: "Phones", price: 500, stock: 10, description: "A fast phone with a big screen" },
+            { id: 2, name: "Laptop Pro", image: "../images/laptop.svg", category: "Laptops", price: 1200, stock: 5, description: "A powerful laptop for work and study" },
+            { id: 3, name: "Headphones", image: "../images/headphones.svg", category: "Phones", price: 80, stock: 20, description: "Comfortable wireless headphones" },
+            { id: 4, name: "Smart Watch", image: "../images/watch.svg", category: "Phones", price: 150, stock: 8, description: "A watch that tracks your steps" }
+        ]);
+    }
     // remove the old fake test orders from the first version
     saveData("orders", getData("orders").filter(o => Array.isArray(o.items)));
 }
