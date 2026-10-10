@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admins</title>
+</head>
+<body>
+    <div id="menu"></div>
+    <h2>Add New Admin</h2>
+    <p>Name: <input type="text" id="name"></p>
+    <p>Email: <input type="text" id="email"></p>
+    <p>Password: <input type="password" id="password"></p>
+    <p id="error" style="color:red"></p>
+    <button onclick="addAdmin()">Add Admin</button>
+
+    <h2>All Admins</h2>
+    <table border="1" cellpadding="5">
+        <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+        <tbody id="list"></tbody>
+    </table>
+
+    <script src="../app.js"></script>
+    <script>
+        checkAdmin();
+        showAdminMenu();
+        show();
+
+        function show() {
+            let html = "";
+            getData("admins").forEach(a => {
+                html += "<tr><td>" + a.id + "</td><td>" + a.name + "</td><td>" + a.email + "</td></tr>";
+            });
+            document.getElementById("list").innerHTML = html;
+        }
+
+        function addAdmin() {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const error = document.getElementById("error");
+            const admins = getData("admins");
+
+            if (name == "" || email == "" || password == "") {
+                error.innerText = "All fields are required";
+                return;
+            }
+            if (name.length < 3) {
+                error.innerText = "Name must be at least 3 characters";
+                return;
+            }
+            if (!validEmail(email)) {
+                error.innerText = "Email is not valid";
+                return;
+            }
+            if (password.length < 6) {
+                error.innerText = "Password must be at least 6 characters";
+                return;
+            }
+            if (admins.some(a => a.email == email)) {
+                error.innerText = "This email is already used";
+                return;
+            }
+
+            admins.push({ id: nextId(admins), name: name, email: email, password: password });
+            saveData("admins", admins);
+            error.innerText = "";
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+            show();
+        }
+    </script>
+</body>
+</html>

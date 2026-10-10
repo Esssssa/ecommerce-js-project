@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+</head>
+<body>
+    <h2>Admin Login</h2>
+    <p>Email: <input type="text" id="email"></p>
+    <p>Password: <input type="password" id="password"></p>
+    <p id="error" style="color:red"></p>
+    <button onclick="login()">Login</button>
+
+    <script src="../app.js"></script>
+    <script>
+        if (localStorage.getItem("loggedAdmin") != null) {
+            window.location.href = "products.html";
+        }
+
+        function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const error = document.getElementById("error");
+
+            if (email == "" || password == "") {
+                error.innerText = "Please fill email and password";
+                return;
+            }
+            if (!validEmail(email)) {
+                error.innerText = "Email is not valid";
+                return;
+            }
+
+            const admin = getData("admins").find(a => a.email == email && a.password == password);
+            if (admin) {
+                localStorage.setItem("loggedAdmin", admin.name);
+                window.location.href = "products.html";
+            } else {
+                error.innerText = "Wrong email or password";
+            }
+        }
+    </script>
+</body>
+</html>

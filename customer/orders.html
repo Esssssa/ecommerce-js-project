@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders</title>
+</head>
+<body>
+    <div id="menu"></div>
+    <h2>My Orders</h2>
+    <table border="1" cellpadding="5">
+        <tr><th>ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+        <tbody id="list"></tbody>
+    </table>
+
+    <script src="../app.js"></script>
+    <script>
+        checkCustomer();
+        showCustomerMenu();
+
+        let html = "";
+        getData("orders").filter(o => o.customerId == getCustomerId()).forEach(o => {
+            const items = o.items.map(i => i.name + " x" + i.qty).join(", ");
+            html += "<tr><td>" + o.id + "</td><td>" + o.date + "</td><td>" + items +
+                "</td><td>" + o.total + "</td><td>" + o.status + "</td></tr>";
+        });
+        if (html == "") {
+            html = "<tr><td colspan='5'>You have no orders yet</td></tr>";
+        }
+        document.getElementById("list").innerHTML = html;
+    </script>
+</body>
+</html>
